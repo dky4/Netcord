@@ -359,7 +359,7 @@ module.exports = {
                     }
                 }
             } else {
-                for (const channelId of cgcChannelList.channels) {
+                for (const channelId of roomsList[currentRoom]) {
                     let isInRoom = false;
                     for (const [key, channels] of Object.entries(roomsList)) {
                         if (channels.includes(channelId)) {
@@ -523,6 +523,14 @@ module.exports = {
                     });
 
                 for (const channelId of cgcChannelList.channels) {
+                    let isInRoom = false;
+                    for (const [key, channels] of Object.entries(roomsList)) {
+                        if (channels.includes(channelId)) {
+                            isInRoom = true;
+                            break;
+                        }
+                    }
+                    if (isInRoom) continue;
                     try {
                         const targetChannel = await message.client.channels.cache.get(channelId);
                         if (targetChannel) {
