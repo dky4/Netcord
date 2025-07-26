@@ -328,7 +328,7 @@ module.exports = {
             message.delete()
 
             if (currentRoom) {
-                for (const channelId of cgcChannelList.channels) {
+                for (const channelId of roomsList[currentRoom]) {
                     try {
                         const targetChannel = await message.client.channels.cache.get(channelId);
                         if (targetChannel) {
@@ -359,7 +359,7 @@ module.exports = {
                     }
                 }
             } else {
-                for (const channelId of roomsList[currentRoom]) {
+                for (const channelId of cgcChannelList.channels) {
                     let isInRoom = false;
                     for (const [key, channels] of Object.entries(roomsList)) {
                         if (channels.includes(channelId)) {
