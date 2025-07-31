@@ -236,12 +236,29 @@ module.exports = {
             const badge = determineBadge(message.member.id);
             const channel = message.channel;
 
-            const extractMediaUrl = (content) => {
+            const extractMediaUrl = async (content) => {
                 if (!content) return null;
 
                 // tenor
-                // const tenorMatch = content.match(/https?:\/\/(?:www\.)?tenor\.com\/view\/[^\s]+/);
-                // if (tenorMatch) return tenorMatch[0];
+                const tenorMatch = content.match(/https?:\/\/(?:www\.)?tenor\.com\/view\/[^\s]+/);
+                if (tenorMatch) {
+                    const tenorUrl = tenorMatch[0];
+                    try {
+                        const response = await fetch(tenorUrl);
+                        if (!response.ok) throw new Error(`Failed to fetch Tenor page: ${response.statusText}`);
+                        const html = await response.text();
+
+                        const videoMatch = html.match(/<meta\s+property="og:video"\s+content="([^"]+)"/);
+                        const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/);
+
+                        if (videoMatch && videoMatch[1]) return videoMatch[1];
+                        if (imageMatch && imageMatch[1]) return imageMatch[1];
+
+                    } catch (error) {
+                        console.error('Error scraping Tenor media URL:', error);
+                    }
+                }
+
 
                 // direct
                 const imageMatch = content.match(/https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|webm)(?:\?[^\s]*)?/i);
@@ -299,7 +316,7 @@ module.exports = {
                 }
             }
 
-            const mediaUrl = extractMediaUrl(message.content);
+            const mediaUrl = await extractMediaUrl(message.content);
             let tempFile = null;
 
             // cache
